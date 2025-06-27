@@ -63,8 +63,8 @@ class LeadController extends Controller
             \Log::info('OneSignal Response', $notificationResponse);
         } catch (\Exception $e) {
             $notificationStatus = 'error';
-            $notificationError = $e->getMessage();
-            \Log::error('OneSignal Error', ['error' => $notificationError]);
+            $notificationError = 'Failed to send push notification. Please try again later.';
+            \Log::error('OneSignal Error', ['error' => $e->getMessage()]);
         }
 
         return response()->json([
