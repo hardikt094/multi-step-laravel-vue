@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: laravel-backend
+    runtime: docker
+    plan: free
+    buildCommand: "composer install --no-dev --optimize-autoloader"
+    startCommand: "php artisan serve --host 0.0.0.0 --port 10000"
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_URL
+        value: https://your-service.onrender.com
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: ${DB_HOST} # Set in Render dashboard
+      - key: DB_PORT
+        value: ${DB_PORT} # Set in Render dashboard
+      - key: DB_DATABASE
+        value: ${DB_DATABASE} # Set in Render dashboard
+      - key: DB_USERNAME
+        value: ${DB_USERNAME} # Set in Render dashboard
+      - key: DB_PASSWORD
+        value: ${DB_PASSWORD} # Set in Render dashboard
+    autoDeploy: true
+    
+  - type: cron
+    name: laravel-schedule
+    runtime: docker
+    schedule: "* * * * *"
+    startCommand: "php artisan schedule:run" 
