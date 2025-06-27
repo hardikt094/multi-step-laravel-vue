@@ -40,6 +40,14 @@
     </form>
     <div v-if="submitted" style="margin-top: 1.5rem; padding: 1rem; background: #dcfce7; color: #166534; border-radius: 8px;">
       Thank you! Your information has been submitted.
+      <div v-if="notificationStatus" style="margin-top: 1rem;">
+        <div v-if="notificationStatus === 'success'" style="color: #166534;">
+          Push notification sent successfully.
+        </div>
+        <div v-else style="color: #b91c1c;">
+          Failed to send push notification: {{ notificationError }}
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -54,6 +62,9 @@ const submitted = ref(false)
 const error = ref('')
 const attempted = ref(false)
 const loading = ref(false)
+const notificationStatus = ref('')
+const notificationError = ref('')
+const notificationResponse = ref(null)
 
 async function handleSubmit() {
   attempted.value = true
@@ -63,8 +74,11 @@ async function handleSubmit() {
   }
   error.value = ''
   loading.value = true
+  notificationStatus.value = ''
+  notificationError.value = ''
+  notificationResponse.value = null
   try {
-    await axios.post('/leads', {
+    const res = await axios.post('/leads', {
       name: store.form.name,
       email: store.form.email,
       company_name: store.form.company,
@@ -73,8 +87,17 @@ async function handleSubmit() {
       platform: store.form.platform,
     })
     submitted.value = true
+    // Log notification info to browser console
+    console.log('OneSignal Notification Status:', res.data.notification_status)
+    console.log('OneSignal Notification Response:', res.data.notification_response)
+    console.log('OneSignal Notification Error:', res.data.notification_error)
+    notificationStatus.value = res.data.notification_status
+    notificationError.value = res.data.notification_error
+    notificationResponse.value = res.data.notification_response
   } catch (e) {
     error.value = e.response?.data?.message || 'Failed to submit. Please try again.'
+    // Log error to browser console
+    console.error('Lead submission error:', e)
   } finally {
     loading.value = false
   }
